@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rhetorical Devices — Tech-Style Study Game (Masked Q&A)</title>
+<style>
+  :root{
+    --ink:#f9fafb; --muted:#cbd5e1; --line:rgba(255,255,255,.08); --bg:#0f172a;
+    --accent:#38bdf8; --good:#4ade80; --bad:#f87171;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background: radial-gradient(1200px 800px at 80% -10%, #1e293b 0%, #0b1224 55%, #050816 100%);
+    color:var(--ink); font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+    min-height:100vh; position:relative; overflow-x:hidden;
+  }
+  /* animated tech lines */
+  body::before, body::after{
+    content:""; position:absolute; inset:0; background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 100%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0 1px, transparent 1px 100%);
+    animation: movebg 30s linear infinite;
+    pointer-events:none;
+  }
+  body::after{animation-direction: reverse; opacity:.5}
+  @keyframes movebg{
+    0%{background-position:0 0,0 0}
+    100%{background-position:100px 200px, 200px 100px}
+  }
+
+  header{padding:24px 16px; border-bottom:1px solid var(--line); backdrop-filter:blur(6px); position:sticky; top:0; background:rgba(15,23,42,.6)}
+  .wrap{max-width:760px; margin:0 auto; padding:0 12px; position:relative; z-index:1}
+  h1{margin:.2rem 0 .4rem; font-size:clamp(1.6rem,3vw,2rem)}
+  p.lede{color:var(--muted); margin:0}
+  nav{display:flex; gap:8px; margin-top:14px}
+  button{
+    appearance:none; border:1px solid var(--line); background:rgba(255,255,255,.05); color:var(--ink);
+    padding:.55rem .9rem; border-radius:10px; cursor:pointer; font-weight:600;
+  }
+  button.primary{background:var(--accent); color:#000; border-color:var(--accent)}
+  button.ghost{background:transparent}
+  main{padding:22px 0 36px; position:relative; z-index:1}
+  .card, .box{
+    border:1px solid var(--line); border-radius:var(--radius); background:rgba(15,23,42,.85); padding:16px;
+    box-shadow:0 4px 16px rgba(0,0,0,.4);
+  }
+  .center{display:grid; gap:12px; justify-items:center; text-align:center}
+  .term{font-weight:800; font-size:1.2rem; color:var(--accent)}
+  .def{color:var(--muted)}
+  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  .choices{display:grid; gap:10px; grid-template-columns:1fr}
+  .choice{border:1px solid var(--line); border-radius:10px; padding:.6rem .7rem; cursor:pointer; background:rgba(255,255,255,.02)}
+  .choice.correct{border-color:var(--good); background:rgba(74,222,128,.15)}
+  .choice.wrong{border-color:var(--bad); background:rgba(248,113,113,.15)}
+  .muted{color:var(--muted)}
+  .spacer{height:12px}
+  .score{font-weight:700}
+  details{border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:rgba(15,23,42,.85)}
+  summary{cursor:pointer; font-weight:600}
+  .hidden{display:none}
+  footer{color:var(--muted); border-top:1px solid var(--line); padding:16px; text-align:center; background:rgba(15,23,42,.6)}
+</style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Rhetorical Devices — Study & Game</h1>
+      <p class="lede">Two steps: learn with flashcards, then test yourself.</p>
+      <nav>
+        <button class="primary" id="tab1">Part 1 — Memory</button>
+        <button class="ghost" id="tab2">Part 2 — Identify</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Part 1 -->
+    <section id="part1">
+      <h2>Flashcard</h2>
+      <div class="card center" id="flash">
+        <div class="term" id="fcTerm">—</div>
+        <div class="def muted" id="fcHint">Tap “Show purpose”</div>
+        <div class="def" id="fcDef" style="display:none"></div>
+        <div class="row">
+          <button id="prev">Previous</button>
+          <button id="show" class="primary">Show purpose</button>
+          <button id="next">Next</button>
+          <button id="shuffle">Shuffle</button>
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+      <details>
+        <summary>Quick Purpose Q&amp;A (10 questions)</summary>
+        <div class="box" id="qaBox">
+          <div id="qaQuestion" class="muted">Press “Start” to begin.</div>
+          <div class="choices" id="qaChoices"></div>
+          <div class="row" style="justify-content:space-between; margin-top:8px">
+            <div class="score" id="qaScore">Score: 0 / 0</div>
+            <div class="row">
+              <button id="qaStart" class="primary">Start</button>
+              <button id="qaNext">Next</button>
+              <button id="qaReset">Reset</button>
+            </div>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <div class="spacer"></div><div class="spacer"></div>
+
+    <!-- Part 2 -->
+    <section id="part2" class="hidden">
+      <h2>Identify the Device</h2>
+      <div class="box">
+        <div id="sQuestion"><strong>Sentence:</strong> —</div>
+        <div class="choices" id="sChoices" style="margin-top:10px"></div>
+        <div class="row" style="justify-content:space-between; margin-top:8px">
+          <div class="score" id="sScore">Score: 0 / 0</div>
+          <div class="row">
+            <button id="sStart" class="primary">Start</button>
+            <button id="sNext">Next</button>
+            <button id="sReset">Reset</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>Tech-style classroom version — single file, no internet required.</footer>
+
+<script>
+// ---------- Data ----------
+const DEVICES = [
+  ["Climax","The writer uses climax to build suspense and gradually increase intensity."],
+  ["Anticlimax","The writer uses anticlimax to subvert expectations by reducing intensity suddenly."],
+  ["Antithesis","The writer uses antithesis to highlight contrast and create balance in ideas."],
+  ["Paradox","The writer uses paradox to make readers question assumptions and think deeply."],
+  ["Pathetic Fallacy","The writer uses pathetic fallacy to reflect human emotions through nature or surroundings."],
+  ["Onomatopoeia","The writer uses onomatopoeia to immerse the reader by mimicking real sounds."],
+  ["Alliteration","The writer uses alliteration to create rhythm, making the writing more memorable."],
+  ["Assonance","The writer uses assonance to create a musical effect that enhances the mood."],
+  ["Rule of Three","The writer uses the rule of three to make writing more memorable and rhythmic."],
+  ["Connotations","The writer uses connotations to add deeper meaning beyond the literal word."],
+  ["Repetition","The writer uses repetition to emphasize key points and reinforce messages."],
+  ["Emotive Language","The writer uses emotive language to evoke strong feelings in the reader."],
+  ["Contrast","The writer uses contrast to highlight differences for emphasis."],
+  ["Pace","The writer adjusts pace to control the speed of a narrative for tension or excitement."],
+  ["Temporal References","The writer uses temporal references to anchor events in time for clarity and impact."],
+  ["Simile","The writer uses simile to clarify concepts by comparing them to familiar things."],
+  ["Metaphor","The writer uses metaphor to create vivid imagery and make abstract ideas more relatable."],
+  ["Metonymy","The writer uses metonymy to simplify complex ideas by replacing something with a related term."],
+  ["Synecdoche","The writer uses synecdoche to emphasize an idea by using a part to represent the whole, or vice versa."],
+  ["Synaesthesia","The writer uses synaesthesia to create a multi-sensory experience by blending different senses."],
+  ["Personification","The writer uses personification to bring emotion to inanimate objects, making writing more engaging."],
+  ["Hyperbole","The writer uses hyperbole to exaggerate for emphasis, humor, or emotional impact."],
+  ["Parallelism","The writer uses parallelism to create rhythm and emphasize key points through repeated sentence structures."],
+  ["Euphemism","The writer uses euphemism to soften harsh realities, making them more palatable."],
+  ["Allegory","The writer uses allegory to layer meaning, allowing a story to carry symbolic depth."],
+  ["Irony","The writer uses irony to highlight contradictions, often for humor or criticism."],
+  ["Pun","The writer uses pun to create humor or multiple meanings through wordplay."],
+  ["Parody","The writer uses parody to imitate and exaggerate for comedic or critical effect."],
+  ["Rhetorical Question","The writer uses rhetorical questions to make readers reflect, rather than expect an answer."],
+  ["Oxymoron","The writer uses oxymoron to provoke thought by combining contradictory terms."]
+];
+const SENTENCES = [
+  ["Climax","He ran, stumbled, crawled—then finally touched the finish line."],
+  ["Anticlimax","The crowd held its breath as the hero raised his sword—and then he sneezed."],
+  ["Antithesis","Many are called, but few are chosen."],
+  ["Paradox","Less is more."],
+  ["Pathetic Fallacy","The storm raged as her anger boiled."],
+  ["Onomatopoeia","The bees buzzed while the bacon sizzled."],
+  ["Alliteration","Silver seas shimmered softly at sunset."],
+  ["Assonance","Hear the mellow wedding bells."],
+  ["Rule of Three","Life, liberty, and the pursuit of happiness."],
+  ["Connotations","He chose a home, not a house."],
+  ["Repetition","Never give in. Never, never, never."],
+  ["Emotive Language","The innocent child was cruelly torn from his family."],
+  ["Contrast","Her room was bright; his was a cave."],
+  ["Pace","He ran. Stopped. Listened. Ran again."],
+  ["Temporal References","Years later, on a cold October morning, the letter arrived."],
+  ["Simile","Her smile was like sunshine after rain."],
+  ["Metaphor","Time is a thief."],
+  ["Metonymy","The White House announced new measures today."],
+  ["Synecdoche","All hands on deck."],
+  ["Synaesthesia","I tasted the sweet sound of her lullaby."],
+  ["Personification","The wind whispered through the trees."],
+  ["Hyperbole","I’ve told you a million times."],
+  ["Parallelism","She came, she saw, she conquered."],
+  ["Euphemism","He passed away last night."],
+  ["Allegory","In the tale, farm animals overthrow their owner to represent corrupted power."],
+  ["Irony","A fire station burned down yesterday."],
+  ["Pun","I used to be a banker but I lost interest."],
+  ["Parody","The poem mimics epic style to mock a trivial argument."],
+  ["Rhetorical Question","Who could deny the evidence before us?"],
+  ["Oxymoron","A deafening silence filled the room."]
+];
+
+// Helpers
+const $ = s => document.querySelector(s);
+const shuffle = a => a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
+
+// Hide device name inside purpose to avoid giving away the answer
+function escapeRx(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+function maskPurpose(def, term){
+  let masked = def;
+  const parts = term.split(' ');
+  // Full term (singular + naive plurals)
+  const esc = escapeRx(term);
+  masked = masked.replace(new RegExp('\\b'+esc+'\\b','gi'),'_____');
+  masked = masked.replace(new RegExp('\\b'+esc+'s\\b','gi'),'_____');
+  masked = masked.replace(new RegExp('\\b'+esc+'es\\b','gi'),'_____');
+  // Also mask each word to be safe (e.g., "questions", "metaphors")
+  parts.forEach(w=>{
+    const e = escapeRx(w);
+    masked = masked.replace(new RegExp('\\b'+e+'\\b','gi'),'_____');
+    masked = masked.replace(new RegExp('\\b'+e+'s\\b','gi'),'_____');
+    masked = masked.replace(new RegExp('\\b'+e+'es\\b','gi'),'_____');
+  });
+  return masked;
+}
+
+// Tabs
+$('#tab1').addEventListener('click',()=>{ $('#part1').classList.remove('hidden'); $('#part2').classList.add('hidden'); $('#tab1').classList.add('primary'); $('#tab2').classList.remove('primary'); });
+$('#tab2').addEventListener('click',()=>{ $('#part2').classList.remove('hidden'); $('#part1').classList.add('hidden'); $('#tab2').classList.add('primary'); $('#tab1').classList.remove('primary'); });
+
+// Flashcard viewer
+let idx = 0, order = DEVICES.slice();
+function showCard(){
+  const [term,def] = order[idx];
+  $('#fcTerm').textContent = term;
+  $('#fcDef').textContent = def;
+  $('#fcDef').style.display = 'none';
+  $('#fcHint').style.display = 'block';
+}
+$('#show').addEventListener('click',()=>{ $('#fcHint').style.display = 'none'; $('#fcDef').style.display = 'block'; });
+$('#next').addEventListener('click',()=>{ idx = (idx+1)%order.length; showCard(); });
+$('#prev').addEventListener('click',()=>{ idx = (idx-1+order.length)%order.length; showCard(); });
+$('#shuffle').addEventListener('click',()=>{ order = shuffle(order); idx=0; showCard(); });
+showCard();
+
+// Q&A (masked)
+let qaPool=[], qaI=0, qaScore=0, qaTotal=0, qaLocked=false;
+function startQA(){ qaPool = shuffle(DEVICES).slice(0,10); qaI=0; qaScore=0; qaTotal=0; qaLocked=false; $('#qaChoices').innerHTML=''; nextQA(); }
+function nextQA(){
+  if(qaI>=qaPool.length){ $('#qaQuestion').textContent='Finished!'; return; }
+  qaLocked=false;
+  const [term,def] = qaPool[qaI];
+  const masked = maskPurpose(def, term);
+  $('#qaQuestion').innerHTML = `<strong>Purpose:</strong> ${masked}`;
+  const opts = shuffle([term, ...shuffle(DEVICES.filter(d=>d[0]!==term)).slice(0,3).map(d=>d[0])]);
+  const box = $('#qaChoices'); box.innerHTML='';
+  opts.forEach(opt=>{
+    const div=document.createElement('div'); div.className='choice'; div.textContent=opt;
+    div.addEventListener('click',()=>{
+      if(qaLocked) return; qaLocked=true;
+      qaTotal++;
+      if(opt===term){ qaScore++; div.classList.add('correct'); }
+      else{ div.classList.add('wrong'); }
+      $('#qaScore').textContent = `Score: ${qaScore} / ${qaTotal}`;
+    });
+    box.appendChild(div);
+  });
+  $('#qaScore').textContent = `Score: ${qaScore} / ${qaTotal}`;
+  qaI++;
+}
+$('#qaStart').addEventListener('click', startQA);
+$('#qaNext').addEventListener('click', nextQA);
+$('#qaReset').addEventListener('click', ()=>{ qaScore=qaTotal=0; $('#qaScore').textContent='Score: 0 / 0'; $('#qaQuestion').textContent='Press “Start” to begin.'; $('#qaChoices').innerHTML=''; });
+
+// Part 2
+let sPool=[], sI=0, sScore=0, sTotal=0, sLocked=false;
+function startS(){ sPool = shuffle(SENTENCES); sI=0; sScore=0; sTotal=0; sLocked=false; $('#sChoices').innerHTML=''; nextS(); }
+function nextS(){
+  if(sI>=sPool.length){ $('#sQuestion').innerHTML='<strong>Done!</strong>'; return; }
+  sLocked=false;
+  const [device, sentence] = sPool[sI];
+  $('#sQuestion').innerHTML = `<strong>Sentence:</strong> “${sentence}”`;
+  const opts = shuffle([device, ...shuffle(DEVICES.filter(d=>d[0]!==device)).slice(0,3).map(d=>d[0])]);
+  const box = $('#sChoices'); box.innerHTML='';
+  opts.forEach(opt=>{
+    const div=document.createElement('div'); div.className='choice'; div.textContent=opt;
+    div.addEventListener('click',()=>{
+      if(sLocked) return; sLocked=true;
+      sTotal++;
+      if(opt===device){ sScore++; div.classList.add('correct'); }
+      else{ div.classList.add('wrong'); }
+      $('#sScore').textContent = `Score: ${sScore} / ${sTotal}`;
+    });
+    box.appendChild(div);
+  });
+  $('#sScore').textContent = `Score: ${sScore} / ${sTotal}`;
+  sI++;
+}
+$('#sStart').addEventListener('click', startS);
+$('#sNext').addEventListener('click', nextS);
+$('#sReset').addEventListener('click', ()=>{ sScore=sTotal=0; $('#sScore').textContent='Score: 0 / 0'; $('#sQuestion').innerHTML='<strong>Sentence:</strong> —'; $('#sChoices').innerHTML=''; });
+</script>
+</body>
+</html>
